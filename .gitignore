@@ -1,0 +1,16 @@
+# Ignore environment and local secrets
+.env
+
+# Ignore cache directories
+.aider.tags.cache.v4/
+__pycache__/
+*.pyc
+
+# Ignore unused/temporary local pipeline directories
+IMAGE_DETECTOR/
+color/
+environment/
+extract_results/
+faiss_store/
+global_embeddings/
+index_store/
