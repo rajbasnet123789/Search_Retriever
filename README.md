@@ -406,13 +406,167 @@ Loading retriever and FAISS index (device: cuda)...
     "formality": null
 }
 
-  Search time: 0.358s
+  Search time: 0.809s
   Results (10):
 
      1. [0.0638]  e636280e96f3863157a4398c92fc299e.jpg
         global_clip=0.244 | regional_clip=0.276 | comp=0.000 | scene=0.000
         Scene: server_room (outdoor) | Garments: top, t-shirt, sweatshirt(orange)
-     ...
+     2. [0.0632]  ef9dae290756a8dbcb1cde404da00a1a.jpg
+        global_clip=0.214 | regional_clip=0.288 | comp=0.000 | scene=0.000
+        Scene: stage/indoor (outdoor) | Garments: top, t-shirt, sweatshirt(yellow)
+     3. [0.0593]  a3e5fa328e54f1ae3c2021ab55530f70.jpg
+        global_clip=0.224 | regional_clip=0.258 | comp=0.000 | scene=0.000
+        Scene: stage/indoor (indoor) | Garments: shirt(orange)
+
+--------------------------------------------------------------------------------
+[Q2] Contextual/Place
+  Query: "Professional business attire inside a modern office."
+
+  Parser: llm
+  Parsed garments : []
+  Parsed scene    : {
+    "label": "office",
+    "description": "modern office",
+    "formality": "formal"
+}
+  Style terms     : ["professional", "business attire", "modern"]
+
+  Search time: 0.045s
+  Results (10):
+
+     1. [0.2747]  54667303234c3838b0f56b36c3adf084.jpg
+        global_clip=0.187 | regional_clip=0.000 | comp=0.000 | scene=0.687
+        Scene: home_office (indoor) | Garments: shirt(black)
+     2. [0.2721]  82d90f72c9745665b559a423f5e4e101.jpg
+        global_clip=0.190 | regional_clip=0.000 | comp=0.000 | scene=0.670
+        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(orange)
+     3. [0.2663]  a14641a4af29efa1ed78dce1386996f7.jpg
+        global_clip=0.187 | regional_clip=0.000 | comp=0.000 | scene=0.653
+        Scene: office_cubicles (indoor) | Garments: shirt(brown)
+     4. [0.2656]  296dee66e4ef01a6453434cdd7062b25.jpg
+        global_clip=0.175 | regional_clip=0.000 | comp=0.000 | scene=0.677
+        Scene: office (indoor) | Garments: cardigan(orange)
+     5. [0.2648]  81fef59795c16096b336ac5db3ef27aa.jpg
+        global_clip=0.179 | regional_clip=0.000 | comp=0.000 | scene=0.666
+        Scene: office_cubicles (indoor) | Garments: None
+
+--------------------------------------------------------------------------------
+[Q3] Complex Semantic
+  Query: "Someone wearing a blue shirt sitting on a park bench."
+
+  Parser: llm
+  Parsed garments : [
+    {
+        "label": "shirt, blouse",
+        "color": "blue",
+        "description": "blue shirt",
+        "explicit": true
+    }
+]
+  Parsed scene    : {
+    "label": "park",
+    "description": "park bench",
+    "formality": null
+}
+
+  Search time: 0.080s
+  Results (10):
+
+     1. [0.3529]  5de396c12707d8a8d4ba5b619df11ef0.jpg
+        global_clip=0.182 | regional_clip=0.000 | comp=0.930 | scene=0.149
+        Scene: cemetery (outdoor) | Garments: shirt(blue)
+     2. [0.3463]  209cbf60a0afd6931578067a9856678a.jpg
+        global_clip=0.170 | regional_clip=0.000 | comp=0.953 | scene=0.106
+        Scene: cemetery (outdoor) | Garments: shirt(blue)
+     3. [0.3044]  a9c817161fda6df41766dfe80e939c6b.jpg
+        global_clip=0.165 | regional_clip=0.000 | comp=0.779 | scene=0.151
+        Scene: park (outdoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(blue)
+     4. [0.2877]  591fcf796516e708cd42b1126fabe689.jpg
+        global_clip=0.150 | regional_clip=0.000 | comp=0.841 | scene=0.022
+        Scene: crosswalk (outdoor) | Garments: shirt(blue)
+     5. [0.2733]  b453e64b5615e852429ff655c33e0309.jpg
+        global_clip=0.146 | regional_clip=0.000 | comp=0.696 | scene=0.141
+        Scene: tree_house (outdoor) | Garments: shirt(blue), shirt(yellow), shirt(blue)
+
+--------------------------------------------------------------------------------
+[Q4] Style Inference
+  Query: "Casual weekend outfit for a city walk."
+
+  Parser: llm
+  Parsed garments : []
+  Parsed scene    : {
+    "label": null,
+    "description": "city walk",
+    "formality": "casual"
+}
+  Style terms     : ["casual", "weekend outfit", "city walk"]
+
+  Search time: 0.038s
+  Results (10):
+
+     1. [0.1643]  84fae07c92d39a7347fadf145330f4bc.jpg
+        global_clip=0.253 | regional_clip=0.000 | comp=0.000 | scene=0.100
+        Scene: promenade (outdoor) | Garments: top, t-shirt, sweatshirt(orange)
+     2. [0.1590]  fa6fe8a772afec21850eaf4cf5fc72fd.jpg
+        global_clip=0.244 | regional_clip=0.000 | comp=0.000 | scene=0.100
+        Scene: street (outdoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(blue)
+     3. [0.1581]  521aed3f314591921a55e69621ad9482.jpg
+        global_clip=0.242 | regional_clip=0.000 | comp=0.000 | scene=0.100
+        Scene: barndoor (outdoor) | Garments: shirt(blue)
+
+--------------------------------------------------------------------------------
+[Q5] Compositional
+  Query: "A red tie and a white shirt in a formal setting."
+
+  Parser: llm
+  Parsed garments : [
+    {
+        "label": "tie",
+        "color": "red",
+        "description": "red tie",
+        "explicit": true
+    },
+    {
+        "label": "shirt, blouse",
+        "color": "white",
+        "description": "white shirt",
+        "explicit": true
+    }
+]
+  Parsed scene    : {
+    "label": null,
+    "description": "formal setting",
+    "formality": "formal"
+}
+
+  Search time: 0.086s
+  Results (10):
+
+     1. [0.1023]  38ce0a95a84489c35fc8f5e145205584.jpg
+        global_clip=0.153 | regional_clip=0.222 | comp=0.090 | scene=0.100
+        Scene: bedroom (indoor) | Garments: shirt(white), top, t-shirt, sweatshirt(white)
+     2. [0.0916]  5c0eaf59c2eaf693980708f24a6b818a.jpg
+        global_clip=0.122 | regional_clip=0.227 | comp=0.063 | scene=0.100
+        Scene: home_theater (indoor) | Garments: shirt(white), cardigan(white)
+     3. [0.0866]  7fc8a54146a81b33f348f21ad07fa141.jpg
+        global_clip=0.161 | regional_clip=0.231 | comp=0.031 | scene=0.100
+        Scene: home_theater (indoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(orange)
+
+================================================================================
+EVALUATION COMPLETE
+================================================================================
+  JSON results: evaluate/results/evaluation_results.json
+  CSV for annotation: evaluate/results/evaluation_results.csv
+  Parsed query cache: evaluate/results/parsed_queries.json
+
+ID    Category               Results   Top-1 Score   Top-1 File                                    Time
+------------------------------------------------------------------------------------------------------
+Q1    Attribute Specific     10        0.0638        e636280e96f3863157a4398c92fc299e.jpg          0.809s
+Q2    Contextual/Place       10        0.2747        54667303234c3838b0f56b36c3adf084.jpg          0.045s
+Q3    Complex Semantic       10        0.3529        5de396c12707d8a8d4ba5b619df11ef0.jpg          0.080s
+Q4    Style Inference        10        0.1643        84fae07c92d39a7347fadf145330f4bc.jpg          0.038s
+Q5    Compositional          10        0.1023        38ce0a95a84489c35fc8f5e145205584.jpg          0.086s
 ```
 
 > **Note on Q1 and Q5**: The indexed dataset (3,200 images from `D:\val_test2020\test`) contains zero detected `coat` or `tie` garments. YOLO only detects 4 garment classes: `top, t-shirt, sweatshirt` (2,675), `shirt` (812), `sweater` (137), `cardigan` (127). No amount of scoring logic can surface garment classes that do not exist in the index.
