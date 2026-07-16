@@ -3,6 +3,12 @@ import os
 import random
 import time
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from retriever.search import FashionRetriever
 
 INDEX_DIR = r"D:\Glance\index_store"

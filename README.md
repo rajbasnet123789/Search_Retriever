@@ -36,17 +36,21 @@ graph TD
         N --> O[Semantic Text Chunks & Descriptions]
         O --> P[Global FAISS Vector Search]
         O --> Q[Regional Garment FAISS Vector Search]
+        N --> SS[Explicit Scene Label]
+        SS --> SB[Scene Metadata Search]
 
         I --> P
         J --> Q
+        K --> SB
 
         N --> R[Parsed Garments, Colors, Scene & Formality]
         K --> S[Compositional & Scene Metadata Matcher]
 
         P --> T[Candidate Pool Fusion Union of Top-K]
         Q --> T
+        SB --> T
         S --> T
-        R --> U[Compositional Reranker Weighted Scoring]
+        R --> U[Compositional Reranker Query-Dependent Weighted Scoring + Tier Fallback]
         T --> U
 
         U -->|Final Weighted Ranking| V[Top-K Ranked Fashion Images]
@@ -70,10 +74,10 @@ Glance/
 │
 ├── retriever/                              # Part B: Core Retrieval & Reranking Modules
 │   ├── __init__.py                         # Exports core retrieval classes and utilities
-│   ├── query_parser.py                     # OpenAI SDK + Hugging Face Llama-3.3 JSON parser + deterministic regex fallback
-│   ├── candidate_retriever.py              # Global + regional FAISS vector search, candidate aggregation & score fusion
-│   ├── compositional_matcher.py            # Evaluates garment label/color matching & scene keyword/attribute scoring
-│   ├── reranker.py                         # Multi-modal weighted reranker applying 0.30/0.40/0.20/0.10 weights formula
+│   ├── query_parser.py                     # OpenAI SDK + Hugging Face Llama-3.3 JSON parser + deterministic regex fallback with anti-invention rules and few-shot examples
+│   ├── candidate_retriever.py              # Global + regional FAISS search + scene metadata search, candidate fusion & global CLIP backfill
+│   ├── compositional_matcher.py            # One-to-one greedy garment matching, strict color scoring, scene matching, wrong-class penalty & formality garment alignment
+│   ├── reranker.py                         # Query-dependent weight profiles (5 types), tier-based progressive fallback & scene penalty
 │   ├── search.py                           # High-level FashionRetriever unified search & indexing API
 │   ├── retriever.py                        # Compatibility wrapper exposing FashionRetriever cleanly from search.py
 │   └── test_retrieval.py                   # Verification suite indexing D:\val_test2020\test & running compositional queries
@@ -199,48 +203,72 @@ All features extracted across the full image, clean background, and individual g
 ## 🔎 Part B: Retrieval & Reranking Pipeline In-Depth Methodology (`retriever/`)
 
 ### 1. Hybrid LLM + Regex Query Parsing (`query_parser.py`)
-When `FashionRetriever.search(query, k=10)` is invoked, the raw natural language query (e.g., *"a yellow raincoat and black pants in a rainy street"*) is first parsed into structured semantic components:
-- **Hugging Face Router Integration**: Uses the `OpenAI` SDK pointing to `https://router.huggingface.co/v1` to query `meta-llama/Llama-3.3-70B-Instruct`. The system prompt is explicitly programmed with our list of 29 Fashionpedia YOLO classes and color/scene keywords.
+When `FashionRetriever.search(query, k=10, parsed_query=None)` is invoked, the raw natural language query is parsed into structured semantic components:
+- **Hugging Face Router Integration**: Uses the `OpenAI` SDK pointing to `https://router.huggingface.co/v1` to query `meta-llama/Llama-3.3-70B-Instruct`. The system prompt enforces anti-invention rules (never infer garments not explicitly named) with few-shot examples.
 - **Output JSON Schema**:
   ```json
   {
-    "global_refined_query": "a yellow raincoat and black pants in a rainy street",
+    "global_refined_query": "Complete sentence preserving ALL query elements including actions, spatial relationships",
     "garments": [
-      { "label": "coat", "color": "yellow", "description": "yellow raincoat" },
-      { "label": "pants", "color": "black", "description": "black pants" }
+      { "label": "coat", "color": "yellow", "description": "yellow raincoat", "explicit": true }
     ],
-    "scene": { "label": "street", "description": "rainy street", "formality": "casual" }
+    "scene": { "label": "street", "description": "rainy street", "formality": "casual" },
+    "style_terms": ["casual", "modern"],
+    "parser_source": "llm",
+    "fallback_reason": null
   }
   ```
-- **Deterministic Regex Fallback**: If the Hugging Face API is unreachable, offline, or times out, `query_parser.py` seamlessly falls back to `_rule_based_parse(text)`, utilizing comprehensive keyword and alias dictionaries (`COMMON_GARMENT_ALIASES`, `COLOR_KEYWORDS`, `SCENE_KEYWORDS`, `formality`) to produce the exact same JSON structure with zero downtime.
+- **Deterministic Regex Fallback**: If the Hugging Face API is unreachable, offline, or credits are depleted, `query_parser.py` falls back to `_rule_based_parse(text)`, using phrase splitting (`re.split(r'\band\b|,|\bwith\b')`) with nearest-colour binding via positional distance to produce the same JSON structure with zero downtime.
+- **Pre-parsed Query Support**: `search()` accepts an optional `parsed_query` parameter to avoid re-parsing the same query multiple times during evaluation.
 
 ### 2. Candidate Retrieval & Fusion (`candidate_retriever.py`)
-To build the initial pool of candidate images (`k * 5` candidates):
-1. **Global Search**: Encodes `global_refined_query` via `clip_encoder.encode_text()` and retrieves the top nearest neighbors from `global.index` (`search_global`).
-2. **Regional Search**: For each garment requested in `parsed_query["garments"]`, encodes the exact regional text description (`g["description"]`, e.g. `'yellow raincoat'`) and queries `regional.index` (`search_regional`). When a crop ID (`path#crop_i`) matches, its parent image ID (`path`) is extracted, and the maximum regional similarity across matching crops is assigned to that image.
-3. **Candidate Fusion**: Computes the union of all image IDs discovered across global and regional searches, outputting a candidate pool with their baseline vector similarity scores: `{image_id: {"global_clip_score": float, "regional_clip_score": float}}`.
+To build the initial pool of candidate images, three retrieval paths are fused:
+
+1. **Global Search**: Encodes `global_refined_query` via `clip_encoder.encode_text()` and retrieves the top-k nearest neighbors from `global.index` (`search_global`). If the refined query is significantly shorter than the raw query (< 50% word count), falls back to the raw query to preserve spatial/action context.
+2. **Regional Search**: For each garment requested in `parsed_query["garments"]`, encodes the exact regional text description (`g["description"]`) and queries `regional.index` (`search_regional`). When a crop ID matches, its parent image ID is extracted. Returns per-garment best scores (`regional_per_garment`) for completeness-weighted scoring.
+3. **Scene Metadata Search** (`search_by_scene`): When the query has an explicit scene label, directly queries the metadata for images whose `scene_probs` contain the target scene alias (e.g., `park` matches `park`, `botanical_garden`, `playground`, `picnic_area`). This ensures scene-relevant images enter the candidate pool even when CLIP text search does not surface them.
+4. **Global CLIP Backfill**: For candidates entering only via regional or scene search (missing global CLIP score), computes cosine similarity on-the-fly using FAISS `reconstruct()` to retrieve stored vectors.
+5. **Candidate Fusion**: Computes the union of all image IDs from all three retrieval paths, outputting a candidate pool with `{image_id: {"global_clip_score", "regional_clip_score", "regional_per_garment"}}`.
 
 ### 3. Compositional Metadata Matching (`compositional_matcher.py`)
-For every candidate image in the union pool, `CompositionalMatcher` computes two fine-grained attribute scores:
-- **`score_compositional(image_id, parsed_query)` ($S_{\text{compositional}} \in [0.0, 1.0]$)**:
-  Iterates over required target garments. For each requirement (`label` and `color`), checks all indexed garment regions in `metadata[image_id]["garments"]`. If both the YOLO class label (or compatible alias like `shirt <-> blouse` or `raincoat <-> coat`) AND the extracted crop primary/dominant color match, the candidate receives full credit (`1.0`). If only the label matches, partial credit (`0.6`) is awarded. If `meta["garments"]` is empty, overall image colors (`primary_color`, `dominant_colors`) are evaluated as a fallback.
-- **`score_scene(image_id, parsed_query)` ($S_{\text{scene}} \in [0.0, 1.0]$)**:
-  Checks whether the requested scene category label (`parsed_query["scene"]["label"]`) matches `meta["scene_category"]` or any of the 10 SUN `scene_attributes`. Also verifies formality alignment (`formal` + `indoor`, `casual` + `outdoor`, or `sporty` + `gym/athletic`).
+For every candidate image, `CompositionalMatcher` computes fine-grained attribute scores:
 
-### 4. Weighted Multi-Modal Reranking Formula (`reranker.py`)
-`CompositionalReranker.rerank(candidates, parsed_query, top_k)` fuses all four similarity signals into a single unified ranking score using our calibrated weighting formula:
+- **`score_compositional(image_id, parsed_query)` -> `(float, bool)`**:
+  Uses **one-to-one greedy assignment** between requested garments and detected crops. Targets are sorted by specificity (color+label first, label-only second). Each crop can only satisfy one query garment (`used_crop_ids` prevents reuse). For each pair:
+  - Label match: `_label_match()` checks exact, substring, and word-intersection matching (e.g., `"shirt, blouse"` matches `"shirt"` via word intersection).
+  - Color match: `_color_match_score()` returns 1.0 for primary color match, 0.5 for dominant list match, 0.0 otherwise.
+  - Garment score: 1.0 (label+color), 0.4-0.8 (label only, scaled by color), 0.0 (no match).
+  - Weighted by YOLO confidence (`max(confidence, 0.35)`).
+  
+  Final composition = `avg_score * completeness`, where `completeness = matched_garments / total_garments`. If any **explicit** garment had zero matches, the score is multiplied by **0.4** (wrong-class penalty). Returns `(composition_score, any_explicit_missing)`.
 
-$$\text{Final Score} = 0.30 \cdot S_{\text{global\_clip}} + 0.40 \cdot S_{\text{regional\_clip}} + 0.20 \cdot S_{\text{compositional}} + 0.10 \cdot S_{\text{scene}}$$
+- **`score_scene(image_id, parsed_query)`**:
+  Three independent components combined:
+  1. `_scene_match_score()`: Sums `scene_probs` probabilities for categories matching the target scene alias set (e.g., `park` -> `{park, botanical_garden, playground, picnic_area}`). Aggregates across top-5 scene probabilities.
+  2. `_formality_score()`: Bonus for formality + indoor/outdoor alignment (formal+indoor=0.1, casual+outdoor=0.1, sporty+gym=0.2).
+  3. `_formality_garment_score()`: Bonus/penalty based on detected garment classes vs. required formality. Formal garments (`shirt, blouse`, `jacket`, `tie`, etc.) in formal queries get +0.2; casual garments (`top, t-shirt, sweatshirt`, `shorts`) get -0.1. **Only applied when the scene actually matches** (`scene_s > 0`) to prevent non-matching scenes from inflating scores.
 
-| Score Signal | Weight Factor | Description |
-| :--- | :---: | :--- |
-| **$S_{\text{global\_clip}}$** | **`0.30` (30%)** | CLIP vector cosine similarity between the full text query and the full image vector. |
-| **$S_{\text{regional\_clip}}$** | **`0.40` (40%)** | Maximum CLIP vector cosine similarity between specific garment descriptions and cropped garment vectors. |
-| **$S_{\text{compositional}}$** | **`0.20` (20%)** | Exact metadata verification confirming that detected YOLO labels and HSV colors match user requirements. |
-| **$S_{\text{scene}}$** | **`0.10` (10%)** | Places365 scene category, indoor/outdoor classification, and SUN attribute keyword/formality alignment. |
+- **`has_garment(image_id, label)`**: Checks if any detected crop matches the given label. Used by the tier scoring system.
 
-> [!NOTE]
-> **Dynamic Weight Redistribution**: If the user's query does not mention specific regional garments (`parsed_query["garments"]` is empty), `CompositionalReranker` automatically redistributes the regional weight to the global and compositional signals (`0.60` Global + `0.00` Regional + `0.25` Comp + `0.15` Scene) to ensure optimal ranking performance.
+### 4. Query-Dependent Weighted Reranking (`reranker.py`)
+`CompositionalReranker.rerank(candidates, parsed_query, top_k)` classifies the query into one of 5 types and applies the corresponding weight profile:
+
+| Query Type | Condition | Global | Regional | Composition | Scene |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **compositional** | 2+ garments | 0.15 | 0.35 | 0.45 | 0.05 |
+| **garment_scene** | 1 garment + scene | 0.20 | 0.25 | 0.30 | 0.25 |
+| **garment** | 1 garment only | 0.20 | 0.40 | 0.35 | 0.05 |
+| **scene** | scene only | 0.40 | 0.10 | 0.15 | 0.35 |
+| **style** | formality + scene | 0.55 | 0.10 | 0.10 | 0.25 |
+
+**Progressive Tier Fallback**: After computing the base weighted score, a tier multiplier is applied based on how many explicit garments are present in the candidate:
+- **Tier 1** (all explicit garments present): `tier = 1.0`
+- **Tier 2** (some present): `tier = 0.7`
+- **Tier 3** (none present): `tier = 0.4`
+
+**Scene Penalty**: If the query requires an explicit scene label and the candidate has `scene_score == 0.0`, the base score is multiplied by `0.55` to push it below scene-matching candidates.
+
+Final formula: `final_score = base_score * tier * scene_penalty`
 
 ---
 
@@ -292,11 +320,11 @@ COMPOSITIONAL & REGIONAL EVALUATION QUERIES
 | **`indexer/color_extractor.py`** | Dominant HSV color clustering & histogram analysis | `OpenCV BGR->HSV`, `sklearn KMeans (k=5)`, `hsv_to_color_name` |
 | **`indexer/scene_extractor.py`** | Scene category & attribute classification on clean background | `Places365 WideResNet18`, 365 categories, indoor/outdoor, 102 SUN attributes |
 | **`indexer/fashion_indexer.py`** | Orchestrator connecting Part A indexing pipeline | Integrates all extractors -> outputs `global.index`, `regional.index`, `metadata.json` |
-| **`retriever/query_parser.py`** | Decomposing queries into structured JSON schemas | `Llama-3.3-70B-Instruct` via `Hugging Face Router` + deterministic regex fallback |
-| **`retriever/candidate_retriever.py`** | Vector search across global and regional FAISS indices | Union of top nearest neighbors (`k * 5`) across `global.index` & `regional.index` |
-| **`retriever/compositional_matcher.py`** | Scoring garment/color matching & scene attribute alignment | Exact & alias label matching, HSV color comparison, formality alignment |
-| **`retriever/reranker.py`** | Weighted score fusion ranking | Fuses scores using `0.30 Global + 0.40 Regional + 0.20 Comp + 0.10 Scene` |
-| **`retriever/search.py`** | High-level unified `FashionRetriever` API | Single entrypoint for indexing (`index_image`/`index_batch`) and searching (`search`) |
+| **`retriever/query_parser.py`** | Decomposing queries into structured JSON schemas | `Llama-3.3-70B-Instruct` via `Hugging Face Router` + anti-invention rules + few-shot examples + deterministic regex fallback |
+| **`retriever/candidate_retriever.py`** | Vector search across global, regional & scene paths | Union of FAISS nearest neighbors + scene metadata search + global CLIP backfill via `reconstruct()` |
+| **`retriever/compositional_matcher.py`** | Garment matching, color scoring & scene attribute alignment | One-to-one greedy assignment, strict HSV color, wrong-class penalty (x0.4), formality garment scoring |
+| **`retriever/reranker.py`** | Query-dependent weighted score fusion ranking | 5 weight profiles (compositional/garment_scene/garment/scene/style), tier fallback (1.0/0.7/0.4), scene penalty |
+| **`retriever/search.py`** | High-level unified `FashionRetriever` API | Single entrypoint with `parsed_query` param for parse-once evaluation pattern |
 | **`evaluate/index_all.py`** | Full dataset FAISS indexing from `D:\val_test2020\test` | Indexes all `.jpg` images with progress logging, skip-if-exists |
 | **`evaluate/run_evaluation.py`** | Official evaluation query suite and benchmarking | Runs 5 queries, logs detailed score breakdowns, saves `evaluation_results.json` |
 
@@ -330,15 +358,17 @@ This loads the pre-built FAISS index and runs the **5 official evaluation querie
 
 ### Results Output Format
 For each query, `run_evaluation.py` outputs:
-- **Parsed query structure** (garments, colors, scene, formality) from the LLM/regex parser.
+- **Parser source** (llm or rule_based_fallback) and fallback reason if applicable.
+- **Parsed query structure** (garments with `explicit` flag, colors, scene, formality, style_terms).
 - **Top-K results** (default K=10) with per-result score breakdown:
   - `global_clip` — CLIP cosine similarity (full image vs. full query text)
-  - `regional_clip` — Max CLIP similarity across garment crop vectors
-  - `compositional` — Garment label + HSV color metadata verification score
-  - `scene` — Places365 scene category & formality alignment score
-  - `final_score` — Weighted fusion: `0.30·global + 0.40·regional + 0.20·comp + 0.10·scene`
+  - `regional_clip` — Completeness-weighted regional CLIP similarity across garment crops
+  - `compositional` — One-to-one greedy garment label + HSV color match (with wrong-class penalty)
+  - `scene` — Places365 scene category match + formality alignment (with garment-formality boost)
+  - `final_score` — Query-type-dependent weighted fusion with tier and scene penalties
+- **Quantitative metrics** (when relevance judgments are provided): P@1, P@5, MRR, NDCG@5.
 - **Summary table** with top-1 scores and search times for all 5 queries.
-- **JSON export** (`evaluate/results/evaluation_results.json`) for downstream analysis.
+- **JSON export** (`evaluate/results/evaluation_results.json`) and **CSV for annotation** (`evaluate/results/evaluation_results.csv`).
 
 ### Verified Evaluation Output
 
@@ -347,7 +377,7 @@ Below is the verified terminal output from running the official evaluation suite
 ```text
 ================================================================================
 GLANCE — EVALUATION SUITE
-================================================================================     
+================================================================================
   Index directory : D:\Glance\index_store
   Results output  : D:\Glance\evaluate\results
   Top-K           : 10
@@ -357,310 +387,33 @@ Loading retriever and FAISS index (device: cuda)...
   Regional vectors loaded: 3751
   Metadata entries       : 3200
 
---------------------------------------------------------------------------------     
+--------------------------------------------------------------------------------
 [Q1] Attribute Specific
   Query: "A person in a bright yellow raincoat."
 
+  Parser: llm
   Parsed garments : [
     {
         "label": "coat",
         "color": "yellow",
-        "description": "yellow raincoat"
+        "description": "bright yellow raincoat",
+        "explicit": true
     }
 ]
   Parsed scene    : {
-    "label": "general",
-    "description": "A person in a bright yellow raincoat.",
+    "label": null,
+    "description": null,
     "formality": null
 }
 
-  Search time: 0.520s
+  Search time: 0.358s
   Results (10):
 
-     1. [0.2987]  66d8259478a29ff1d7b2d0f8a4b49052.jpg
-        global_clip=0.196 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: gas_station (indoor) | Garments: None
-
-     2. [0.2986]  bb3eee6cd89b330ff8302dc2bcc2e839.jpg
-        global_clip=0.195 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: reception (indoor) | Garments: None
-
-     3. [0.2950]  b5c8c768b2bc55ca312ffcbdabbc4acd.jpg
-        global_clip=0.183 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: park (outdoor) | Garments: None
-
-     4. [0.2917]  4fb2c73ae072c096e3166a2f1568d539.jpg
-        global_clip=0.172 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: lock_chamber (outdoor) | Garments: None
-
-     5. [0.2914]  96b202445bdc16ebc3e93ae5788ed63e.jpg
-        global_clip=0.171 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: highway (outdoor) | Garments: None
-
-     6. [0.2913]  fa5dbe2aa5accf9b9f6af057f0f45313.jpg
-        global_clip=0.171 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: vineyard (outdoor) | Garments: None
-
-     7. [0.2913]  15154e4e279813e4f7d40fd88a578810.jpg
-        global_clip=0.171 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: forest/broadleaf (outdoor) | Garments: None
-
-     8. [0.2895]  dce78e63156955da1ed8a9cc3ba084d3.jpg
-        global_clip=0.165 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: gas_station (outdoor) | Garments: None
-
-     9. [0.2895]  af83a557fc80026a2e012f437e135fe3.jpg
-        global_clip=0.165 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: crosswalk (outdoor) | Garments: None
-
-    10. [0.2894]  a419c030ecf1f588302b7db62ee2bb21.jpg
-        global_clip=0.165 | regional_clip=0.000 | comp=1.000 | scene=0.400
-        Scene: forest/broadleaf (outdoor) | Garments: None
-
---------------------------------------------------------------------------------     
-[Q2] Contextual/Place
-  Query: "Professional business attire inside a modern office."
-
-  Parsed garments : []
-  Parsed scene    : {
-    "label": "office",
-    "description": "office environment",
-    "formality": "formal"
-}
-
-  Search time: 0.011s
-  Results (10):
-
-     1. [0.3578]  c8110d529733b4e233fd393dd6f5f0c0.jpg
-        global_clip=0.213 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: office_cubicles (indoor) | Garments: shirt(white)
-
-     2. [0.3558]  be28de5c8a6dd195e6f4e8786cd5cc01.jpg
-        global_clip=0.210 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: office_cubicles (indoor) | Garments: shirt(orange)
-
-     3. [0.3550]  b1a6657a8d2f74010b28d8a9d47be111.jpg
-        global_clip=0.208 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: home_office (indoor) | Garments: top, t-shirt, sweatshirt(red)        
-
-     4. [0.3510]  b5afca4e7afe32cd8d4e7ba62da456bd.jpg
-        global_clip=0.202 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: home_office (indoor) | Garments: shirt(orange)
-
-     5. [0.3508]  42bd52d3882424b80d61a7e4f27f2529.jpg
-        global_clip=0.201 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(white), top, t-shirt, sweatshirt(white)
-
-     6. [0.3485]  6096b12d8fc996b65b4b9947b18502ca.jpg
-        global_clip=0.198 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: office_cubicles (indoor) | Garments: shirt(blue)
-
-     7. [0.3477]  d0c4bf7ed3c55cb69bfaa0316c763dc3.jpg
-        global_clip=0.196 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(black)  
-
-     8. [0.3447]  467e320a26dba17b9eebc70fd05ce78b.jpg
-        global_clip=0.191 | regional_clip=0.000 | comp=0.500 | scene=0.700
-        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(orange) 
-
-     9. [0.3204]  d81b7c8bdd0d1f9f33ab57ddc01f0ced.jpg
-        global_clip=0.226 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: porch (outdoor) | Garments: None
-
-    10. [0.3198]  782f4ed69368eedc63b33ffed5c34cb8.jpg
-        global_clip=0.225 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: parking_garage/outdoor (outdoor) | Garments: shirt(white), cardigan(white)
-
---------------------------------------------------------------------------------     
-[Q3] Complex Semantic
-  Query: "Someone wearing a blue shirt sitting on a park bench."
-
-  Parsed garments : [
-    {
-        "label": "shirt, blouse",
-        "color": "blue",
-        "description": "blue shirt"
-    }
-]
-  Parsed scene    : {
-    "label": "park",
-    "description": "park environment",
-    "formality": null
-}
-
-  Search time: 0.028s
-  Results (10):
-
-     1. [0.4124]  19ff358743463458613ea7b54f0cfacb.jpg
-        global_clip=0.207 | regional_clip=0.226 | comp=1.000 | scene=0.600
-        Scene: parking_garage/indoor (indoor) | Garments: top, t-shirt, sweatshirt(blue)
-
-     2. [0.4014]  10d0606a6747501716f76fb3f5614cd3.jpg
-        global_clip=0.179 | regional_clip=0.219 | comp=1.000 | scene=0.600
-        Scene: parking_lot (outdoor) | Garments: top, t-shirt, sweatshirt(gray), top, t-shirt, sweatshirt(blue)
-
-     3. [0.3963]  d3288584fffb4caeb8a392304b09ce93.jpg
-        global_clip=0.221 | regional_clip=0.225 | comp=1.000 | scene=0.400
-        Scene: vineyard (outdoor) | Garments: top, t-shirt, sweatshirt(blue)
-
-     4. [0.3954]  70e000fc740fd51671f257453e5d4ef1.jpg
-        global_clip=0.225 | regional_clip=0.220 | comp=1.000 | scene=0.400
-        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(gray)
-
-     5. [0.3949]  9c09bc13950c049c82bab5f9bef36fb4.jpg
-        global_clip=0.192 | regional_clip=0.243 | comp=1.000 | scene=0.400
-        Scene: crosswalk (outdoor) | Garments: shirt(blue)
-
-     6. [0.3934]  4ba624616f54007236995b5ed5d330e2.jpg
-        global_clip=0.192 | regional_clip=0.240 | comp=1.000 | scene=0.400
-        Scene: loading_dock (outdoor) | Garments: top, t-shirt, sweatshirt(blue), top, t-shirt, sweatshirt(red)
-
-     7. [0.3923]  ea833ef036b391509407f002b97f261d.jpg
-        global_clip=0.222 | regional_clip=0.214 | comp=1.000 | scene=0.400
-        Scene: patio (outdoor) | Garments: top, t-shirt, sweatshirt(purple)
-
-     8. [0.3912]  fa6fe8a772afec21850eaf4cf5fc72fd.jpg
-        global_clip=0.203 | regional_clip=0.226 | comp=1.000 | scene=0.400
-        Scene: street (outdoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(blue)
-
-     9. [0.3884]  af68e2b757368f185c0616e62b1ddd3a.jpg
-        global_clip=0.209 | regional_clip=0.214 | comp=1.000 | scene=0.400
-        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(blue)
-
-    10. [0.3883]  a15c6c13e9f38c1cef065bac315dd032.jpg
-        global_clip=0.184 | regional_clip=0.233 | comp=1.000 | scene=0.400
-        Scene: crosswalk (outdoor) | Garments: top, t-shirt, sweatshirt(blue)        
-
---------------------------------------------------------------------------------     
-[Q4] Style Inference
-  Query: "Casual weekend outfit for a city walk."
-
-  Parsed garments : []
-  Parsed scene    : {
-    "label": "city",
-    "description": "city environment",
-    "formality": "casual"
-}
-
-  Search time: 0.013s
-  Results (10):
-
-     1. [0.3268]  cfbabd988312ff3c07fe7f3363ba96a5.jpg
-        global_clip=0.236 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: home_theater (indoor) | Garments: shirt(orange)
-
-     2. [0.3267]  783be57827f0a3615872597d7f524cd9.jpg
-        global_clip=0.236 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: server_room (indoor) | Garments: top, t-shirt, sweatshirt(blue)       
-
-     3. [0.3265]  05af199570c00b817102c3cb6834a6e4.jpg
-        global_clip=0.236 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: barndoor (indoor) | Garments: top, t-shirt, sweatshirt(gray), shirt(gray)
-
-     4. [0.3258]  37c8b0742095f9aadcb3bcdd6b35b2e0.jpg
-        global_clip=0.235 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: server_room (indoor) | Garments: shirt(gray)
-
-     5. [0.3242]  f678117f6e91501c86eb0194d2f81c9e.jpg
-        global_clip=0.232 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: promenade (indoor) | Garments: shirt(blue), shirt(black)
-
-     6. [0.3241]  4d3fd642c9d08290f6262759a51d252f.jpg
-        global_clip=0.232 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: art_gallery (indoor) | Garments: shirt(gray)
-
-     7. [0.3231]  27b6a77e28237490b23020b788514f9c.jpg
-        global_clip=0.230 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: subway_station/platform (indoor) | Garments: None
-
-     8. [0.3227]  642f917cb4fff586a4201b93c9958af3.jpg
-        global_clip=0.229 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: barndoor (indoor) | Garments: shirt(orange)
-
-     9. [0.3221]  d88ddc792eb989edcae2e46b32ce7f55.jpg
-        global_clip=0.228 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: home_theater (indoor) | Garments: top, t-shirt, sweatshirt(orange)    
-
-    10. [0.3218]  1687cf1a76e63aeaacd18ecca3639bbc.jpg
-        global_clip=0.228 | regional_clip=0.000 | comp=0.500 | scene=0.400
-        Scene: bookstore (indoor) | Garments: top, t-shirt, sweatshirt(gray)
-
---------------------------------------------------------------------------------     
-[Q5] Compositional
-  Query: "A red tie and a white shirt in a formal setting."
-
-  Parsed garments : [
-    {
-        "label": "shirt, blouse",
-        "color": "red",
-        "description": "red shirt"
-    },
-    {
-        "label": "tie",
-        "color": "red",
-        "description": "red tie"
-    }
-]
-  Parsed scene    : {
-    "label": "general",
-    "description": "A red tie and a white shirt in a formal setting.",
-    "formality": "formal"
-}
-
-  Search time: 0.045s
-  Results (10):
-
-     1. [0.3197]  64b13d18dea21a27301129ad62f7468f.jpg
-        global_clip=0.201 | regional_clip=0.223 | comp=0.650 | scene=0.400
-        Scene: home_theater (outdoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(blue)
-
-     2. [0.3190]  f0ac4ba410f7dd70272184ff5fe4b5ce.jpg
-        global_clip=0.175 | regional_clip=0.241 | comp=0.650 | scene=0.400
-        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(red)
-
-     3. [0.3158]  18c15c8cfed7547c3b519a6888b3c802.jpg
-        global_clip=0.156 | regional_clip=0.247 | comp=0.650 | scene=0.400
-        Scene: home_theater (outdoor) | Garments: shirt(black), top, t-shirt, sweatshirt(red)
-
-     4. [0.3095]  c3481ffac40b45bed9ba4cb688928e48.jpg
-        global_clip=0.190 | regional_clip=0.206 | comp=0.650 | scene=0.400
-        Scene: pier (outdoor) | Garments: shirt(blue)
-
-     5. [0.3088]  9bccefd557dfa188af2e8ec8ca98e928.jpg
-        global_clip=0.166 | regional_clip=0.222 | comp=0.650 | scene=0.400
-        Scene: elevator/door (outdoor) | Garments: top, t-shirt, sweatshirt(red)     
-
-     6. [0.3088]  ec791dd926d464f45e3f4e9d78aafd10.jpg
-        global_clip=0.174 | regional_clip=0.217 | comp=0.650 | scene=0.400
-        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(red)
-
-     7. [0.3075]  ed53e55790431be00ad38d6548f70f93.jpg
-        global_clip=0.174 | regional_clip=0.213 | comp=0.650 | scene=0.400
-        Scene: ocean (outdoor) | Garments: top, t-shirt, sweatshirt(purple)
-
-     8. [0.3038]  c120fee6ec710f20f414398d4bf27fc4.jpg
-        global_clip=0.178 | regional_clip=0.201 | comp=0.650 | scene=0.400
-        Scene: crosswalk (outdoor) | Garments: top, t-shirt, sweatshirt(red), top, t-shirt, sweatshirt(red)
-
-     9. [0.3032]  82f2dd35ae34d6010c256e0944a28fd2.jpg
-        global_clip=0.167 | regional_clip=0.208 | comp=0.650 | scene=0.400
-        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(purple), shirt(gray), top, t-shirt, sweatshirt(red), top, t-shirt, sweatshirt(red)
-
-    10. [0.3015]  6cbdfad69032913bb177428379ed137e.jpg
-        global_clip=0.168 | regional_clip=0.203 | comp=0.650 | scene=0.400
-        Scene: home_theater (outdoor) | Garments: top, t-shirt, sweatshirt(red), shirt(orange)
-
-================================================================================     
-EVALUATION COMPLETE
-================================================================================     
-  Full results saved to: D:\Glance\evaluate\results\evaluation_results.json
-
-ID    Category               Top-1 Score   Top-1 File                                    Time
------------------------------------------------------------------------------------------------
-Q1    Attribute Specific     0.2987        66d8259478a29ff1d7b2d0f8a4b49052.jpg          0.520s
-Q2    Contextual/Place       0.3578        c8110d529733b4e233fd393dd6f5f0c0.jpg          0.011s
-Q3    Complex Semantic       0.4124        19ff358743463458613ea7b54f0cfacb.jpg          0.028s
-Q4    Style Inference        0.3268        cfbabd988312ff3c07fe7f3363ba96a5.jpg          0.013s
-Q5    Compositional          0.3197        64b13d18dea21a27301129ad62f7468f.jpg          0.045s
+     1. [0.0638]  e636280e96f3863157a4398c92fc299e.jpg
+        global_clip=0.244 | regional_clip=0.276 | comp=0.000 | scene=0.000
+        Scene: server_room (outdoor) | Garments: top, t-shirt, sweatshirt(orange)
+     ...
 ```
+
+> **Note on Q1 and Q5**: The indexed dataset (3,200 images from `D:\val_test2020\test`) contains zero detected `coat` or `tie` garments. YOLO only detects 4 garment classes: `top, t-shirt, sweatshirt` (2,675), `shirt` (812), `sweater` (137), `cardigan` (127). No amount of scoring logic can surface garment classes that do not exist in the index.
 
