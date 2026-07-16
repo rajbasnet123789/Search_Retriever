@@ -339,3 +339,328 @@ For each query, `run_evaluation.py` outputs:
   - `final_score` — Weighted fusion: `0.30·global + 0.40·regional + 0.20·comp + 0.10·scene`
 - **Summary table** with top-1 scores and search times for all 5 queries.
 - **JSON export** (`evaluate/results/evaluation_results.json`) for downstream analysis.
+
+### Verified Evaluation Output
+
+Below is the verified terminal output from running the official evaluation suite against the fully indexed dataset:
+
+```text
+================================================================================
+GLANCE — EVALUATION SUITE
+================================================================================     
+  Index directory : D:\Glance\index_store
+  Results output  : D:\Glance\evaluate\results
+  Top-K           : 10
+
+Loading retriever and FAISS index (device: cuda)...
+  Global vectors loaded  : 3200
+  Regional vectors loaded: 3751
+  Metadata entries       : 3200
+
+--------------------------------------------------------------------------------     
+[Q1] Attribute Specific
+  Query: "A person in a bright yellow raincoat."
+
+  Parsed garments : [
+    {
+        "label": "coat",
+        "color": "yellow",
+        "description": "yellow raincoat"
+    }
+]
+  Parsed scene    : {
+    "label": "general",
+    "description": "A person in a bright yellow raincoat.",
+    "formality": null
+}
+
+  Search time: 0.520s
+  Results (10):
+
+     1. [0.2987]  66d8259478a29ff1d7b2d0f8a4b49052.jpg
+        global_clip=0.196 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: gas_station (indoor) | Garments: None
+
+     2. [0.2986]  bb3eee6cd89b330ff8302dc2bcc2e839.jpg
+        global_clip=0.195 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: reception (indoor) | Garments: None
+
+     3. [0.2950]  b5c8c768b2bc55ca312ffcbdabbc4acd.jpg
+        global_clip=0.183 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: park (outdoor) | Garments: None
+
+     4. [0.2917]  4fb2c73ae072c096e3166a2f1568d539.jpg
+        global_clip=0.172 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: lock_chamber (outdoor) | Garments: None
+
+     5. [0.2914]  96b202445bdc16ebc3e93ae5788ed63e.jpg
+        global_clip=0.171 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: highway (outdoor) | Garments: None
+
+     6. [0.2913]  fa5dbe2aa5accf9b9f6af057f0f45313.jpg
+        global_clip=0.171 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: vineyard (outdoor) | Garments: None
+
+     7. [0.2913]  15154e4e279813e4f7d40fd88a578810.jpg
+        global_clip=0.171 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: forest/broadleaf (outdoor) | Garments: None
+
+     8. [0.2895]  dce78e63156955da1ed8a9cc3ba084d3.jpg
+        global_clip=0.165 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: gas_station (outdoor) | Garments: None
+
+     9. [0.2895]  af83a557fc80026a2e012f437e135fe3.jpg
+        global_clip=0.165 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: crosswalk (outdoor) | Garments: None
+
+    10. [0.2894]  a419c030ecf1f588302b7db62ee2bb21.jpg
+        global_clip=0.165 | regional_clip=0.000 | comp=1.000 | scene=0.400
+        Scene: forest/broadleaf (outdoor) | Garments: None
+
+--------------------------------------------------------------------------------     
+[Q2] Contextual/Place
+  Query: "Professional business attire inside a modern office."
+
+  Parsed garments : []
+  Parsed scene    : {
+    "label": "office",
+    "description": "office environment",
+    "formality": "formal"
+}
+
+  Search time: 0.011s
+  Results (10):
+
+     1. [0.3578]  c8110d529733b4e233fd393dd6f5f0c0.jpg
+        global_clip=0.213 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: office_cubicles (indoor) | Garments: shirt(white)
+
+     2. [0.3558]  be28de5c8a6dd195e6f4e8786cd5cc01.jpg
+        global_clip=0.210 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: office_cubicles (indoor) | Garments: shirt(orange)
+
+     3. [0.3550]  b1a6657a8d2f74010b28d8a9d47be111.jpg
+        global_clip=0.208 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: home_office (indoor) | Garments: top, t-shirt, sweatshirt(red)        
+
+     4. [0.3510]  b5afca4e7afe32cd8d4e7ba62da456bd.jpg
+        global_clip=0.202 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: home_office (indoor) | Garments: shirt(orange)
+
+     5. [0.3508]  42bd52d3882424b80d61a7e4f27f2529.jpg
+        global_clip=0.201 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(white), top, t-shirt, sweatshirt(white)
+
+     6. [0.3485]  6096b12d8fc996b65b4b9947b18502ca.jpg
+        global_clip=0.198 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: office_cubicles (indoor) | Garments: shirt(blue)
+
+     7. [0.3477]  d0c4bf7ed3c55cb69bfaa0316c763dc3.jpg
+        global_clip=0.196 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(black)  
+
+     8. [0.3447]  467e320a26dba17b9eebc70fd05ce78b.jpg
+        global_clip=0.191 | regional_clip=0.000 | comp=0.500 | scene=0.700
+        Scene: office_cubicles (indoor) | Garments: top, t-shirt, sweatshirt(orange) 
+
+     9. [0.3204]  d81b7c8bdd0d1f9f33ab57ddc01f0ced.jpg
+        global_clip=0.226 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: porch (outdoor) | Garments: None
+
+    10. [0.3198]  782f4ed69368eedc63b33ffed5c34cb8.jpg
+        global_clip=0.225 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: parking_garage/outdoor (outdoor) | Garments: shirt(white), cardigan(white)
+
+--------------------------------------------------------------------------------     
+[Q3] Complex Semantic
+  Query: "Someone wearing a blue shirt sitting on a park bench."
+
+  Parsed garments : [
+    {
+        "label": "shirt, blouse",
+        "color": "blue",
+        "description": "blue shirt"
+    }
+]
+  Parsed scene    : {
+    "label": "park",
+    "description": "park environment",
+    "formality": null
+}
+
+  Search time: 0.028s
+  Results (10):
+
+     1. [0.4124]  19ff358743463458613ea7b54f0cfacb.jpg
+        global_clip=0.207 | regional_clip=0.226 | comp=1.000 | scene=0.600
+        Scene: parking_garage/indoor (indoor) | Garments: top, t-shirt, sweatshirt(blue)
+
+     2. [0.4014]  10d0606a6747501716f76fb3f5614cd3.jpg
+        global_clip=0.179 | regional_clip=0.219 | comp=1.000 | scene=0.600
+        Scene: parking_lot (outdoor) | Garments: top, t-shirt, sweatshirt(gray), top, t-shirt, sweatshirt(blue)
+
+     3. [0.3963]  d3288584fffb4caeb8a392304b09ce93.jpg
+        global_clip=0.221 | regional_clip=0.225 | comp=1.000 | scene=0.400
+        Scene: vineyard (outdoor) | Garments: top, t-shirt, sweatshirt(blue)
+
+     4. [0.3954]  70e000fc740fd51671f257453e5d4ef1.jpg
+        global_clip=0.225 | regional_clip=0.220 | comp=1.000 | scene=0.400
+        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(gray)
+
+     5. [0.3949]  9c09bc13950c049c82bab5f9bef36fb4.jpg
+        global_clip=0.192 | regional_clip=0.243 | comp=1.000 | scene=0.400
+        Scene: crosswalk (outdoor) | Garments: shirt(blue)
+
+     6. [0.3934]  4ba624616f54007236995b5ed5d330e2.jpg
+        global_clip=0.192 | regional_clip=0.240 | comp=1.000 | scene=0.400
+        Scene: loading_dock (outdoor) | Garments: top, t-shirt, sweatshirt(blue), top, t-shirt, sweatshirt(red)
+
+     7. [0.3923]  ea833ef036b391509407f002b97f261d.jpg
+        global_clip=0.222 | regional_clip=0.214 | comp=1.000 | scene=0.400
+        Scene: patio (outdoor) | Garments: top, t-shirt, sweatshirt(purple)
+
+     8. [0.3912]  fa6fe8a772afec21850eaf4cf5fc72fd.jpg
+        global_clip=0.203 | regional_clip=0.226 | comp=1.000 | scene=0.400
+        Scene: street (outdoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(blue)
+
+     9. [0.3884]  af68e2b757368f185c0616e62b1ddd3a.jpg
+        global_clip=0.209 | regional_clip=0.214 | comp=1.000 | scene=0.400
+        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(blue)
+
+    10. [0.3883]  a15c6c13e9f38c1cef065bac315dd032.jpg
+        global_clip=0.184 | regional_clip=0.233 | comp=1.000 | scene=0.400
+        Scene: crosswalk (outdoor) | Garments: top, t-shirt, sweatshirt(blue)        
+
+--------------------------------------------------------------------------------     
+[Q4] Style Inference
+  Query: "Casual weekend outfit for a city walk."
+
+  Parsed garments : []
+  Parsed scene    : {
+    "label": "city",
+    "description": "city environment",
+    "formality": "casual"
+}
+
+  Search time: 0.013s
+  Results (10):
+
+     1. [0.3268]  cfbabd988312ff3c07fe7f3363ba96a5.jpg
+        global_clip=0.236 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: home_theater (indoor) | Garments: shirt(orange)
+
+     2. [0.3267]  783be57827f0a3615872597d7f524cd9.jpg
+        global_clip=0.236 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: server_room (indoor) | Garments: top, t-shirt, sweatshirt(blue)       
+
+     3. [0.3265]  05af199570c00b817102c3cb6834a6e4.jpg
+        global_clip=0.236 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: barndoor (indoor) | Garments: top, t-shirt, sweatshirt(gray), shirt(gray)
+
+     4. [0.3258]  37c8b0742095f9aadcb3bcdd6b35b2e0.jpg
+        global_clip=0.235 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: server_room (indoor) | Garments: shirt(gray)
+
+     5. [0.3242]  f678117f6e91501c86eb0194d2f81c9e.jpg
+        global_clip=0.232 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: promenade (indoor) | Garments: shirt(blue), shirt(black)
+
+     6. [0.3241]  4d3fd642c9d08290f6262759a51d252f.jpg
+        global_clip=0.232 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: art_gallery (indoor) | Garments: shirt(gray)
+
+     7. [0.3231]  27b6a77e28237490b23020b788514f9c.jpg
+        global_clip=0.230 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: subway_station/platform (indoor) | Garments: None
+
+     8. [0.3227]  642f917cb4fff586a4201b93c9958af3.jpg
+        global_clip=0.229 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: barndoor (indoor) | Garments: shirt(orange)
+
+     9. [0.3221]  d88ddc792eb989edcae2e46b32ce7f55.jpg
+        global_clip=0.228 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: home_theater (indoor) | Garments: top, t-shirt, sweatshirt(orange)    
+
+    10. [0.3218]  1687cf1a76e63aeaacd18ecca3639bbc.jpg
+        global_clip=0.228 | regional_clip=0.000 | comp=0.500 | scene=0.400
+        Scene: bookstore (indoor) | Garments: top, t-shirt, sweatshirt(gray)
+
+--------------------------------------------------------------------------------     
+[Q5] Compositional
+  Query: "A red tie and a white shirt in a formal setting."
+
+  Parsed garments : [
+    {
+        "label": "shirt, blouse",
+        "color": "red",
+        "description": "red shirt"
+    },
+    {
+        "label": "tie",
+        "color": "red",
+        "description": "red tie"
+    }
+]
+  Parsed scene    : {
+    "label": "general",
+    "description": "A red tie and a white shirt in a formal setting.",
+    "formality": "formal"
+}
+
+  Search time: 0.045s
+  Results (10):
+
+     1. [0.3197]  64b13d18dea21a27301129ad62f7468f.jpg
+        global_clip=0.201 | regional_clip=0.223 | comp=0.650 | scene=0.400
+        Scene: home_theater (outdoor) | Garments: shirt(blue), top, t-shirt, sweatshirt(blue)
+
+     2. [0.3190]  f0ac4ba410f7dd70272184ff5fe4b5ce.jpg
+        global_clip=0.175 | regional_clip=0.241 | comp=0.650 | scene=0.400
+        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(red)
+
+     3. [0.3158]  18c15c8cfed7547c3b519a6888b3c802.jpg
+        global_clip=0.156 | regional_clip=0.247 | comp=0.650 | scene=0.400
+        Scene: home_theater (outdoor) | Garments: shirt(black), top, t-shirt, sweatshirt(red)
+
+     4. [0.3095]  c3481ffac40b45bed9ba4cb688928e48.jpg
+        global_clip=0.190 | regional_clip=0.206 | comp=0.650 | scene=0.400
+        Scene: pier (outdoor) | Garments: shirt(blue)
+
+     5. [0.3088]  9bccefd557dfa188af2e8ec8ca98e928.jpg
+        global_clip=0.166 | regional_clip=0.222 | comp=0.650 | scene=0.400
+        Scene: elevator/door (outdoor) | Garments: top, t-shirt, sweatshirt(red)     
+
+     6. [0.3088]  ec791dd926d464f45e3f4e9d78aafd10.jpg
+        global_clip=0.174 | regional_clip=0.217 | comp=0.650 | scene=0.400
+        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(red)
+
+     7. [0.3075]  ed53e55790431be00ad38d6548f70f93.jpg
+        global_clip=0.174 | regional_clip=0.213 | comp=0.650 | scene=0.400
+        Scene: ocean (outdoor) | Garments: top, t-shirt, sweatshirt(purple)
+
+     8. [0.3038]  c120fee6ec710f20f414398d4bf27fc4.jpg
+        global_clip=0.178 | regional_clip=0.201 | comp=0.650 | scene=0.400
+        Scene: crosswalk (outdoor) | Garments: top, t-shirt, sweatshirt(red), top, t-shirt, sweatshirt(red)
+
+     9. [0.3032]  82f2dd35ae34d6010c256e0944a28fd2.jpg
+        global_clip=0.167 | regional_clip=0.208 | comp=0.650 | scene=0.400
+        Scene: barndoor (outdoor) | Garments: top, t-shirt, sweatshirt(purple), shirt(gray), top, t-shirt, sweatshirt(red), top, t-shirt, sweatshirt(red)
+
+    10. [0.3015]  6cbdfad69032913bb177428379ed137e.jpg
+        global_clip=0.168 | regional_clip=0.203 | comp=0.650 | scene=0.400
+        Scene: home_theater (outdoor) | Garments: top, t-shirt, sweatshirt(red), shirt(orange)
+
+================================================================================     
+EVALUATION COMPLETE
+================================================================================     
+  Full results saved to: D:\Glance\evaluate\results\evaluation_results.json
+
+ID    Category               Top-1 Score   Top-1 File                                    Time
+-----------------------------------------------------------------------------------------------
+Q1    Attribute Specific     0.2987        66d8259478a29ff1d7b2d0f8a4b49052.jpg          0.520s
+Q2    Contextual/Place       0.3578        c8110d529733b4e233fd393dd6f5f0c0.jpg          0.011s
+Q3    Complex Semantic       0.4124        19ff358743463458613ea7b54f0cfacb.jpg          0.028s
+Q4    Style Inference        0.3268        cfbabd988312ff3c07fe7f3363ba96a5.jpg          0.013s
+Q5    Compositional          0.3197        64b13d18dea21a27301129ad62f7468f.jpg          0.045s
+```
+

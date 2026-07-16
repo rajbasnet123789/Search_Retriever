@@ -1,0 +1,850 @@
+{
+  "Q1": {
+    "query_id": "Q1",
+    "category": "Attribute Specific",
+    "query": "A person in a bright yellow raincoat.",
+    "parsed": {
+      "global_refined_query": "A person in a bright yellow raincoat.",
+      "garments": [
+        {
+          "label": "coat",
+          "color": "yellow",
+          "description": "yellow raincoat"
+        }
+      ],
+      "scene": {
+        "label": "general",
+        "description": "A person in a bright yellow raincoat.",
+        "formality": null
+      }
+    },
+    "search_time_s": 0.5204784870147705,
+    "results": [
+      {
+        "rank": 1,
+        "path": "D:\\val_test2020\\test\\66d8259478a29ff1d7b2d0f8a4b49052.jpg",
+        "filename": "66d8259478a29ff1d7b2d0f8a4b49052.jpg",
+        "final_score": 0.2986886242032051,
+        "global_clip_score": 0.19562874734401703,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "gas_station",
+        "indoor_outdoor": "indoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 2,
+        "path": "D:\\val_test2020\\test\\bb3eee6cd89b330ff8302dc2bcc2e839.jpg",
+        "filename": "bb3eee6cd89b330ff8302dc2bcc2e839.jpg",
+        "final_score": 0.29864370167255405,
+        "global_clip_score": 0.19547900557518005,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "reception",
+        "indoor_outdoor": "indoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 3,
+        "path": "D:\\val_test2020\\test\\b5c8c768b2bc55ca312ffcbdabbc4acd.jpg",
+        "filename": "b5c8c768b2bc55ca312ffcbdabbc4acd.jpg",
+        "final_score": 0.29502897351980206,
+        "global_clip_score": 0.18342991173267365,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "park",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 4,
+        "path": "D:\\val_test2020\\test\\4fb2c73ae072c096e3166a2f1568d539.jpg",
+        "filename": "4fb2c73ae072c096e3166a2f1568d539.jpg",
+        "final_score": 0.2916699671745301,
+        "global_clip_score": 0.1722332239151001,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "lock_chamber",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 5,
+        "path": "D:\\val_test2020\\test\\96b202445bdc16ebc3e93ae5788ed63e.jpg",
+        "filename": "96b202445bdc16ebc3e93ae5788ed63e.jpg",
+        "final_score": 0.29135838389396673,
+        "global_clip_score": 0.17119461297988892,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "highway",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 6,
+        "path": "D:\\val_test2020\\test\\fa5dbe2aa5accf9b9f6af057f0f45313.jpg",
+        "filename": "fa5dbe2aa5accf9b9f6af057f0f45313.jpg",
+        "final_score": 0.2913021111488342,
+        "global_clip_score": 0.17100703716278076,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "vineyard",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 7,
+        "path": "D:\\val_test2020\\test\\15154e4e279813e4f7d40fd88a578810.jpg",
+        "filename": "15154e4e279813e4f7d40fd88a578810.jpg",
+        "final_score": 0.29128399729728705,
+        "global_clip_score": 0.1709466576576233,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "forest/broadleaf",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 8,
+        "path": "D:\\val_test2020\\test\\dce78e63156955da1ed8a9cc3ba084d3.jpg",
+        "filename": "dce78e63156955da1ed8a9cc3ba084d3.jpg",
+        "final_score": 0.2894947224855423,
+        "global_clip_score": 0.164982408285141,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "gas_station",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 9,
+        "path": "D:\\val_test2020\\test\\af83a557fc80026a2e012f437e135fe3.jpg",
+        "filename": "af83a557fc80026a2e012f437e135fe3.jpg",
+        "final_score": 0.2894821920990944,
+        "global_clip_score": 0.16494064033031464,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "crosswalk",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 10,
+        "path": "D:\\val_test2020\\test\\a419c030ecf1f588302b7db62ee2bb21.jpg",
+        "filename": "a419c030ecf1f588302b7db62ee2bb21.jpg",
+        "final_score": 0.28937203377485277,
+        "global_clip_score": 0.16457344591617584,
+        "regional_clip_score": 0.0,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "forest/broadleaf",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      }
+    ]
+  },
+  "Q2": {
+    "query_id": "Q2",
+    "category": "Contextual/Place",
+    "query": "Professional business attire inside a modern office.",
+    "parsed": {
+      "global_refined_query": "Professional business attire inside a modern office.",
+      "garments": [],
+      "scene": {
+        "label": "office",
+        "description": "office environment",
+        "formality": "formal"
+      }
+    },
+    "search_time_s": 0.01100301742553711,
+    "results": [
+      {
+        "rank": 1,
+        "path": "D:\\val_test2020\\test\\c8110d529733b4e233fd393dd6f5f0c0.jpg",
+        "filename": "c8110d529733b4e233fd393dd6f5f0c0.jpg",
+        "final_score": 0.35775301635265344,
+        "global_clip_score": 0.21292169392108917,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "office_cubicles",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(white)"
+        ]
+      },
+      {
+        "rank": 2,
+        "path": "D:\\val_test2020\\test\\be28de5c8a6dd195e6f4e8786cd5cc01.jpg",
+        "filename": "be28de5c8a6dd195e6f4e8786cd5cc01.jpg",
+        "final_score": 0.35582168281078336,
+        "global_clip_score": 0.20970280468463898,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "office_cubicles",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(orange)"
+        ]
+      },
+      {
+        "rank": 3,
+        "path": "D:\\val_test2020\\test\\b1a6657a8d2f74010b28d8a9d47be111.jpg",
+        "filename": "b1a6657a8d2f74010b28d8a9d47be111.jpg",
+        "final_score": 0.3550419378280639,
+        "global_clip_score": 0.20840322971343994,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "home_office",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 4,
+        "path": "D:\\val_test2020\\test\\b5afca4e7afe32cd8d4e7ba62da456bd.jpg",
+        "filename": "b5afca4e7afe32cd8d4e7ba62da456bd.jpg",
+        "final_score": 0.351041065454483,
+        "global_clip_score": 0.20173510909080505,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "home_office",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(orange)"
+        ]
+      },
+      {
+        "rank": 5,
+        "path": "D:\\val_test2020\\test\\42bd52d3882424b80d61a7e4f27f2529.jpg",
+        "filename": "42bd52d3882424b80d61a7e4f27f2529.jpg",
+        "final_score": 0.35080520987510677,
+        "global_clip_score": 0.20134201645851135,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "office_cubicles",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(white)",
+          "top, t-shirt, sweatshirt(white)"
+        ]
+      },
+      {
+        "rank": 6,
+        "path": "D:\\val_test2020\\test\\6096b12d8fc996b65b4b9947b18502ca.jpg",
+        "filename": "6096b12d8fc996b65b4b9947b18502ca.jpg",
+        "final_score": 0.3485004234313965,
+        "global_clip_score": 0.19750070571899414,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "office_cubicles",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(blue)"
+        ]
+      },
+      {
+        "rank": 7,
+        "path": "D:\\val_test2020\\test\\d0c4bf7ed3c55cb69bfaa0316c763dc3.jpg",
+        "filename": "d0c4bf7ed3c55cb69bfaa0316c763dc3.jpg",
+        "final_score": 0.347700856924057,
+        "global_clip_score": 0.19616809487342834,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "office_cubicles",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(black)"
+        ]
+      },
+      {
+        "rank": 8,
+        "path": "D:\\val_test2020\\test\\467e320a26dba17b9eebc70fd05ce78b.jpg",
+        "filename": "467e320a26dba17b9eebc70fd05ce78b.jpg",
+        "final_score": 0.34468162834644317,
+        "global_clip_score": 0.19113604724407196,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.7,
+        "scene_category": "office_cubicles",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(orange)"
+        ]
+      },
+      {
+        "rank": 9,
+        "path": "D:\\val_test2020\\test\\d81b7c8bdd0d1f9f33ab57ddc01f0ced.jpg",
+        "filename": "d81b7c8bdd0d1f9f33ab57ddc01f0ced.jpg",
+        "final_score": 0.3203800296783447,
+        "global_clip_score": 0.2256333827972412,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "porch",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 10,
+        "path": "D:\\val_test2020\\test\\782f4ed69368eedc63b33ffed5c34cb8.jpg",
+        "filename": "782f4ed69368eedc63b33ffed5c34cb8.jpg",
+        "final_score": 0.31978322029113765,
+        "global_clip_score": 0.2246387004852295,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "parking_garage/outdoor",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "shirt(white)",
+          "cardigan(white)"
+        ]
+      }
+    ]
+  },
+  "Q3": {
+    "query_id": "Q3",
+    "category": "Complex Semantic",
+    "query": "Someone wearing a blue shirt sitting on a park bench.",
+    "parsed": {
+      "global_refined_query": "Someone wearing a blue shirt sitting on a park bench.",
+      "garments": [
+        {
+          "label": "shirt, blouse",
+          "color": "blue",
+          "description": "blue shirt"
+        }
+      ],
+      "scene": {
+        "label": "park",
+        "description": "park environment",
+        "formality": null
+      }
+    },
+    "search_time_s": 0.028024673461914062,
+    "results": [
+      {
+        "rank": 1,
+        "path": "D:\\val_test2020\\test\\19ff358743463458613ea7b54f0cfacb.jpg",
+        "filename": "19ff358743463458613ea7b54f0cfacb.jpg",
+        "final_score": 0.412403624355793,
+        "global_clip_score": 0.20660518109798431,
+        "regional_clip_score": 0.22605517506599426,
+        "compositional_score": 1.0,
+        "scene_score": 0.6,
+        "scene_category": "parking_garage/indoor",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 2,
+        "path": "D:\\val_test2020\\test\\10d0606a6747501716f76fb3f5614cd3.jpg",
+        "filename": "10d0606a6747501716f76fb3f5614cd3.jpg",
+        "final_score": 0.40142973870038984,
+        "global_clip_score": 0.17893339693546295,
+        "regional_clip_score": 0.21937429904937744,
+        "compositional_score": 1.0,
+        "scene_score": 0.6,
+        "scene_category": "parking_lot",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(gray)",
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 3,
+        "path": "D:\\val_test2020\\test\\d3288584fffb4caeb8a392304b09ce93.jpg",
+        "filename": "d3288584fffb4caeb8a392304b09ce93.jpg",
+        "final_score": 0.3962719285488129,
+        "global_clip_score": 0.2205374836921692,
+        "regional_clip_score": 0.22527670860290527,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "vineyard",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 4,
+        "path": "D:\\val_test2020\\test\\70e000fc740fd51671f257453e5d4ef1.jpg",
+        "filename": "70e000fc740fd51671f257453e5d4ef1.jpg",
+        "final_score": 0.3954177820682526,
+        "global_clip_score": 0.22480767965316772,
+        "regional_clip_score": 0.21993869543075562,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(gray)"
+        ]
+      },
+      {
+        "rank": 5,
+        "path": "D:\\val_test2020\\test\\9c09bc13950c049c82bab5f9bef36fb4.jpg",
+        "filename": "9c09bc13950c049c82bab5f9bef36fb4.jpg",
+        "final_score": 0.39488161742687233,
+        "global_clip_score": 0.19207027554512024,
+        "regional_clip_score": 0.24315133690834045,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "crosswalk",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "shirt(blue)"
+        ]
+      },
+      {
+        "rank": 6,
+        "path": "D:\\val_test2020\\test\\4ba624616f54007236995b5ed5d330e2.jpg",
+        "filename": "4ba624616f54007236995b5ed5d330e2.jpg",
+        "final_score": 0.3934346759319306,
+        "global_clip_score": 0.1915023922920227,
+        "regional_clip_score": 0.23995989561080933,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "loading_dock",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(blue)",
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 7,
+        "path": "D:\\val_test2020\\test\\ea833ef036b391509407f002b97f261d.jpg",
+        "filename": "ea833ef036b391509407f002b97f261d.jpg",
+        "final_score": 0.3923164600133896,
+        "global_clip_score": 0.2218361794948578,
+        "regional_clip_score": 0.21441401541233063,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "patio",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(purple)"
+        ]
+      },
+      {
+        "rank": 8,
+        "path": "D:\\val_test2020\\test\\fa6fe8a772afec21850eaf4cf5fc72fd.jpg",
+        "filename": "fa6fe8a772afec21850eaf4cf5fc72fd.jpg",
+        "final_score": 0.3911926710605622,
+        "global_clip_score": 0.20330870151519775,
+        "regional_clip_score": 0.22550015151500702,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "street",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "shirt(blue)",
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 9,
+        "path": "D:\\val_test2020\\test\\af68e2b757368f185c0616e62b1ddd3a.jpg",
+        "filename": "af68e2b757368f185c0616e62b1ddd3a.jpg",
+        "final_score": 0.38835133403539657,
+        "global_clip_score": 0.20934267342090607,
+        "regional_clip_score": 0.2138713300228119,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 10,
+        "path": "D:\\val_test2020\\test\\a15c6c13e9f38c1cef065bac315dd032.jpg",
+        "filename": "a15c6c13e9f38c1cef065bac315dd032.jpg",
+        "final_score": 0.3883450025320053,
+        "global_clip_score": 0.18428829312324524,
+        "regional_clip_score": 0.23264628648757935,
+        "compositional_score": 1.0,
+        "scene_score": 0.4,
+        "scene_category": "crosswalk",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      }
+    ]
+  },
+  "Q4": {
+    "query_id": "Q4",
+    "category": "Style Inference",
+    "query": "Casual weekend outfit for a city walk.",
+    "parsed": {
+      "global_refined_query": "Casual weekend outfit for a city walk.",
+      "garments": [],
+      "scene": {
+        "label": "city",
+        "description": "city environment",
+        "formality": "casual"
+      }
+    },
+    "search_time_s": 0.013019084930419922,
+    "results": [
+      {
+        "rank": 1,
+        "path": "D:\\val_test2020\\test\\cfbabd988312ff3c07fe7f3363ba96a5.jpg",
+        "filename": "cfbabd988312ff3c07fe7f3363ba96a5.jpg",
+        "final_score": 0.32684251725673674,
+        "global_clip_score": 0.2364041954278946,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "home_theater",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(orange)"
+        ]
+      },
+      {
+        "rank": 2,
+        "path": "D:\\val_test2020\\test\\783be57827f0a3615872597d7f524cd9.jpg",
+        "filename": "783be57827f0a3615872597d7f524cd9.jpg",
+        "final_score": 0.32665562987327573,
+        "global_clip_score": 0.2360927164554596,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "server_room",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 3,
+        "path": "D:\\val_test2020\\test\\05af199570c00b817102c3cb6834a6e4.jpg",
+        "filename": "05af199570c00b817102c3cb6834a6e4.jpg",
+        "final_score": 0.3264636015892029,
+        "global_clip_score": 0.23577266931533813,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(gray)",
+          "shirt(gray)"
+        ]
+      },
+      {
+        "rank": 4,
+        "path": "D:\\val_test2020\\test\\37c8b0742095f9aadcb3bcdd6b35b2e0.jpg",
+        "filename": "37c8b0742095f9aadcb3bcdd6b35b2e0.jpg",
+        "final_score": 0.32584267020225527,
+        "global_clip_score": 0.23473778367042542,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "server_room",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(gray)"
+        ]
+      },
+      {
+        "rank": 5,
+        "path": "D:\\val_test2020\\test\\f678117f6e91501c86eb0194d2f81c9e.jpg",
+        "filename": "f678117f6e91501c86eb0194d2f81c9e.jpg",
+        "final_score": 0.32418065726757045,
+        "global_clip_score": 0.2319677621126175,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "promenade",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(blue)",
+          "shirt(black)"
+        ]
+      },
+      {
+        "rank": 6,
+        "path": "D:\\val_test2020\\test\\4d3fd642c9d08290f6262759a51d252f.jpg",
+        "filename": "4d3fd642c9d08290f6262759a51d252f.jpg",
+        "final_score": 0.32406770050525663,
+        "global_clip_score": 0.23177950084209442,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "art_gallery",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(gray)"
+        ]
+      },
+      {
+        "rank": 7,
+        "path": "D:\\val_test2020\\test\\27b6a77e28237490b23020b788514f9c.jpg",
+        "filename": "27b6a77e28237490b23020b788514f9c.jpg",
+        "final_score": 0.32307477355003356,
+        "global_clip_score": 0.23012462258338928,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "subway_station/platform",
+        "indoor_outdoor": "indoor",
+        "detected_garments": []
+      },
+      {
+        "rank": 8,
+        "path": "D:\\val_test2020\\test\\642f917cb4fff586a4201b93c9958af3.jpg",
+        "filename": "642f917cb4fff586a4201b93c9958af3.jpg",
+        "final_score": 0.32267610788345336,
+        "global_clip_score": 0.22946017980575562,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "shirt(orange)"
+        ]
+      },
+      {
+        "rank": 9,
+        "path": "D:\\val_test2020\\test\\d88ddc792eb989edcae2e46b32ce7f55.jpg",
+        "filename": "d88ddc792eb989edcae2e46b32ce7f55.jpg",
+        "final_score": 0.3220524764060974,
+        "global_clip_score": 0.22842079401016235,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "home_theater",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(orange)"
+        ]
+      },
+      {
+        "rank": 10,
+        "path": "D:\\val_test2020\\test\\1687cf1a76e63aeaacd18ecca3639bbc.jpg",
+        "filename": "1687cf1a76e63aeaacd18ecca3639bbc.jpg",
+        "final_score": 0.32182606220245363,
+        "global_clip_score": 0.22804343700408936,
+        "regional_clip_score": 0.0,
+        "compositional_score": 0.5,
+        "scene_score": 0.4,
+        "scene_category": "bookstore",
+        "indoor_outdoor": "indoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(gray)"
+        ]
+      }
+    ]
+  },
+  "Q5": {
+    "query_id": "Q5",
+    "category": "Compositional",
+    "query": "A red tie and a white shirt in a formal setting.",
+    "parsed": {
+      "global_refined_query": "A red tie and a white shirt in a formal setting.",
+      "garments": [
+        {
+          "label": "shirt, blouse",
+          "color": "red",
+          "description": "red shirt"
+        },
+        {
+          "label": "tie",
+          "color": "red",
+          "description": "red tie"
+        }
+      ],
+      "scene": {
+        "label": "general",
+        "description": "A red tie and a white shirt in a formal setting.",
+        "formality": "formal"
+      }
+    },
+    "search_time_s": 0.04501748085021973,
+    "results": [
+      {
+        "rank": 1,
+        "path": "D:\\val_test2020\\test\\64b13d18dea21a27301129ad62f7468f.jpg",
+        "filename": "64b13d18dea21a27301129ad62f7468f.jpg",
+        "final_score": 0.31970791935920717,
+        "global_clip_score": 0.20134490728378296,
+        "regional_clip_score": 0.22326111793518066,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "home_theater",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "shirt(blue)",
+          "top, t-shirt, sweatshirt(blue)"
+        ]
+      },
+      {
+        "rank": 2,
+        "path": "D:\\val_test2020\\test\\f0ac4ba410f7dd70272184ff5fe4b5ce.jpg",
+        "filename": "f0ac4ba410f7dd70272184ff5fe4b5ce.jpg",
+        "final_score": 0.31904649853706357,
+        "global_clip_score": 0.17541652917861938,
+        "regional_clip_score": 0.24105384945869446,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 3,
+        "path": "D:\\val_test2020\\test\\18c15c8cfed7547c3b519a6888b3c802.jpg",
+        "filename": "18c15c8cfed7547c3b519a6888b3c802.jpg",
+        "final_score": 0.31582917392253873,
+        "global_clip_score": 0.1563834249973297,
+        "regional_clip_score": 0.2472853660583496,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "home_theater",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "shirt(black)",
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 4,
+        "path": "D:\\val_test2020\\test\\c3481ffac40b45bed9ba4cb688928e48.jpg",
+        "filename": "c3481ffac40b45bed9ba4cb688928e48.jpg",
+        "final_score": 0.3095199000835419,
+        "global_clip_score": 0.19005900621414185,
+        "regional_clip_score": 0.2062554955482483,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "pier",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "shirt(blue)"
+        ]
+      },
+      {
+        "rank": 5,
+        "path": "D:\\val_test2020\\test\\9bccefd557dfa188af2e8ec8ca98e928.jpg",
+        "filename": "9bccefd557dfa188af2e8ec8ca98e928.jpg",
+        "final_score": 0.30884153068065645,
+        "global_clip_score": 0.16637620329856873,
+        "regional_clip_score": 0.22232167422771454,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "elevator/door",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 6,
+        "path": "D:\\val_test2020\\test\\ec791dd926d464f45e3f4e9d78aafd10.jpg",
+        "filename": "ec791dd926d464f45e3f4e9d78aafd10.jpg",
+        "final_score": 0.30875432163476946,
+        "global_clip_score": 0.1735014170408249,
+        "regional_clip_score": 0.21675974130630493,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 7,
+        "path": "D:\\val_test2020\\test\\ed53e55790431be00ad38d6548f70f93.jpg",
+        "filename": "ed53e55790431be00ad38d6548f70f93.jpg",
+        "final_score": 0.3075383645296097,
+        "global_clip_score": 0.1740584671497345,
+        "regional_clip_score": 0.21330206096172333,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "ocean",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(purple)"
+        ]
+      },
+      {
+        "rank": 8,
+        "path": "D:\\val_test2020\\test\\c120fee6ec710f20f414398d4bf27fc4.jpg",
+        "filename": "c120fee6ec710f20f414398d4bf27fc4.jpg",
+        "final_score": 0.3037728828191757,
+        "global_clip_score": 0.1782630980014801,
+        "regional_clip_score": 0.20073488354682922,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "crosswalk",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(red)",
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 9,
+        "path": "D:\\val_test2020\\test\\82f2dd35ae34d6010c256e0944a28fd2.jpg",
+        "filename": "82f2dd35ae34d6010c256e0944a28fd2.jpg",
+        "final_score": 0.30319072425365456,
+        "global_clip_score": 0.1669314205646515,
+        "regional_clip_score": 0.20777824521064758,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "barndoor",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(purple)",
+          "shirt(gray)",
+          "top, t-shirt, sweatshirt(red)",
+          "top, t-shirt, sweatshirt(red)"
+        ]
+      },
+      {
+        "rank": 10,
+        "path": "D:\\val_test2020\\test\\6cbdfad69032913bb177428379ed137e.jpg",
+        "filename": "6cbdfad69032913bb177428379ed137e.jpg",
+        "final_score": 0.30151215910911566,
+        "global_clip_score": 0.1676594614982605,
+        "regional_clip_score": 0.20303580164909363,
+        "compositional_score": 0.65,
+        "scene_score": 0.4,
+        "scene_category": "home_theater",
+        "indoor_outdoor": "outdoor",
+        "detected_garments": [
+          "top, t-shirt, sweatshirt(red)",
+          "shirt(orange)"
+        ]
+      }
+    ]
+  }
+}
